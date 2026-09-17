@@ -1,19 +1,23 @@
 package com.vaddshah.ktjooq.features.users
 
-import com.vaddshah.ktjooq.features.users.dtos.CreateUserRequest
-import com.vaddshah.ktjooq.features.users.dtos.User
+import com.vaddshah.ktjooq.features.users.dtos.UserResponse
 import org.springframework.stereotype.Service
-import org.springframework.transaction.annotation.Transactional
 
 @Service
 class UserService(private val repository: UserRepository) {
 
-    fun findAll(): List<User> {
-        return repository.findAll()
-    }
-
-    @Transactional
-    fun create(request: CreateUserRequest): User {
-        return repository.create(request)
+    fun getUser(email: String): UserResponse {
+        val user = repository.findByEmail(email)
+        return if (user != null) {
+            UserResponse(
+                id = user.id ?: error("Insert user returned null"),
+                email = user.email,
+                name = user.name,
+                createdAt = user.createdAt,
+                updatedAt = user.updatedAt,
+            )
+        } else {
+            error("User not found")
+        }
     }
 }

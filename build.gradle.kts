@@ -42,50 +42,58 @@ repositories {
 }
 
 dependencies {
-	// Web layer: builds REST endpoints and the HTTP server
+	// ? Web layer: builds REST endpoints and the HTTP server
 	implementation("org.springframework.boot:spring-boot-starter-webmvc")
 
-	// Dev only: auto-restart & live reload; NOT packaged into the production jar
+	// ? Dev only: auto-restart & live reload; NOT packaged into the production jar
 	developmentOnly("org.springframework.boot:spring-boot-devtools")
 
-	// Web test support: MockMvc, @WebMvcTest, etc.; available only to the test classpath
+	// ? Web test support: MockMvc, @WebMvcTest, etc.; available only to the test classpath
 	testImplementation("org.springframework.boot:spring-boot-starter-webmvc-test")
 
-	// Kotlin assertion library that plugs into the JUnit 5 test runner
+	// ? Kotlin assertion library that plugs into the JUnit 5 test runner
 	testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
 
-	// JUnit Platform runner; required at test runtime to actually execute JUnit 5 tests
+	// ? JUnit Platform runner; required at test runtime to actually execute JUnit 5 tests
 	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 
-	// Kotlin reflection (KClass, KFunction); needed by Spring/Kotlin integration
+	// ? Kotlin reflection (KClass, KFunction); needed by Spring/Kotlin integration
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
 
-	// Lets Jackson (de)serialize Kotlin data classes without no-arg constructors
+	// ? Lets Jackson (de)serialize Kotlin data classes without no-arg constructors
 	implementation("tools.jackson.module:jackson-module-kotlin")
 
-	// jOOQ auto-configuration: exposes a DSLContext bean wired into Spring transactions
+	// ? jOOQ autoconfiguration: exposes a DSLContext bean wired into Spring transactions
 	implementation("org.springframework.boot:spring-boot-starter-jooq")
 
-	// Database migrations: runs Flyway scripts at application startup
+	// ? Database migrations: runs Flyway scripts at application startup
 	implementation("org.springframework.boot:spring-boot-starter-flyway")
 
-	// Kotlin-specific jOOQ extensions (nested DSL, coroutines, etc.)
+	// ? Kotlin-specific jOOQ extensions (nested DSL, coroutines, etc.)
 	implementation("org.jooq:jooq-kotlin")
 
-	// MySQL dialect support for Flyway; runtime only
+	// ? MySQL dialect support for Flyway; runtime only
 	runtimeOnly("org.flywaydb:flyway-mysql")
 
-	// MySQL JDBC driver; runtime only
+	// ? MySQL JDBC driver; runtime only
 	runtimeOnly("com.mysql:mysql-connector-j")
 
-	// Same JDBC driver, but attached to the jOOQ codegen task so it can introspect the schema
+	// ? Same JDBC driver, but attached to the jOOQ codegen task so it can introspect the schema
 	jooqCodegen("com.mysql:mysql-connector-j")
 
-	// Bean Validation (jakarta.validation): validates @RequestBody DTOs with annotations
+	// ? Bean Validation (jakarta.validation): validates @RequestBody DTOs with annotations
 	implementation("org.springframework.boot:spring-boot-starter-validation")
 
-	// Loads .env into Spring's Environment at startup; dev only, excluded from the packaged jar
+	// ? Loads .env into Spring's Environment at startup; dev only, excluded from the packaged jar
 	developmentOnly("me.paulschwarz:springboot4-dotenv:5.1.0")
+
+	// ? Spring Security
+	implementation("org.springframework.boot:spring-boot-starter-security")
+
+	// ? JWT (Java Web Token) for stateless authentication
+	implementation("io.jsonwebtoken:jjwt-api:0.12.6")
+	runtimeOnly("io.jsonwebtoken:jjwt-impl:0.12.6")
+	runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.12.6")
 }
 
 jooq {

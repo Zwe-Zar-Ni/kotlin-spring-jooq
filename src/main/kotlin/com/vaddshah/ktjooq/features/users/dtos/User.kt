@@ -3,9 +3,10 @@ package com.vaddshah.ktjooq.features.users.dtos
 import java.time.LocalDateTime
 
 data class User(
-    val id: Long,
+    val id: Long? = null,
     val name: String,
     val email: String,
-    val createdAt: LocalDateTime,
-    val updatedAt: LocalDateTime,
+    val password: String,
+    val createdAt: LocalDateTime = LocalDateTime.now(),
+    val updatedAt: LocalDateTime = LocalDateTime.now(),
 )

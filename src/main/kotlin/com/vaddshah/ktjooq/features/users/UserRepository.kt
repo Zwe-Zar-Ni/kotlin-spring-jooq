@@ -1,7 +1,7 @@
 package com.vaddshah.ktjooq.features.users
 
-import com.vaddshah.ktjooq.features.users.dtos.CreateUserRequest
 import com.vaddshah.ktjooq.features.users.dtos.User
+import com.vaddshah.ktjooq.features.users.dtos.UserResponse
 import com.vaddshah.ktjooq.generated.tables.records.UsersRecord
 import com.vaddshah.ktjooq.generated.tables.references.USERS
 import org.jooq.DSLContext
@@ -10,23 +10,39 @@ import org.springframework.transaction.annotation.Transactional
 
 @Repository
 class UserRepository(private val dsl: DSLContext) {
-    fun findAll(): List<User> =
+    fun findAll(): List<UserResponse> =
         dsl.selectFrom(USERS)
             .orderBy(USERS.ID.desc())
-            .fetch { toUser(it) }
+            .fetch { toUserResponse(it) }
 
     @Transactional
-    fun create(request: CreateUserRequest): User {
+    fun create(request: User): UserResponse {
         val record = dsl.insertInto(USERS)
             .set(USERS.NAME, request.name)
             .set(USERS.EMAIL, request.email)
             .set(USERS.PASSWORD, request.password)
             .returning()
             .fetchOne()
-        return toUser(record ?: error("Insert returned no row"))
+        return toUserResponse(record ?: error("Insert returned no row"))
     }
 
-    private fun toUser(record: UsersRecord): User = User(
+    fun findByEmail(email: String): User? {
+        val user = dsl.selectFrom(USERS).where(USERS.EMAIL.eq(email)).fetchOne()
+        return if (user != null) {
+            User(
+                id = requireNotNull(user.id),
+                name = requireNotNull(user.name),
+                email = requireNotNull(user.email),
+                password = requireNotNull(user.password),
+                createdAt = requireNotNull(user.createdAt),
+                updatedAt = requireNotNull(user.updatedAt),
+            )
+        } else {
+            null
+        }
+    }
+
+    private fun toUserResponse(record: UsersRecord): UserResponse = UserResponse(
         id = requireNotNull(record.id),
         name = requireNotNull(record.name),
         email = requireNotNull(record.email),
