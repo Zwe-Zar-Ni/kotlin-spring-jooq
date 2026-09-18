@@ -1,8 +1,52 @@
-CREATE TABLE users (
-    id         BIGINT          NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    name       VARCHAR(255)    NOT NULL,
-    email      VARCHAR(255)    NOT NULL UNIQUE,
-    password   VARCHAR(255)    NOT NULL,
-    created_at TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+CREATE TABLE users
+(
+    id         BIGINT       NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    name       VARCHAR(255) NOT NULL,
+    email      VARCHAR(255) NOT NULL UNIQUE,
+    password   VARCHAR(255) NOT NULL,
+
+    created_at TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE = InnoDB;
+
+CREATE TABLE products
+(
+    id         BIGINT         NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    name       VARCHAR(255)   NOT NULL,
+    price      DECIMAL(11, 2) NOT NULL,
+    stock      SMALLINT       NOT NULL DEFAULT 0,
+
+    created_at TIMESTAMP      NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP      NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
+    CONSTRAINT chk_stock_non_negative CHECK (stock >= 0)
+) ENGINE = InnoDB;
+
+CREATE TABLE orders
+(
+    id         BIGINT         NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    total      DECIMAL(11, 2) NOT NULL,
+    user_id    BIGINT         NULL,
+    status     VARCHAR(30)    NOT NULL DEFAULT 'PENDING',
+
+    created_at TIMESTAMP      NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP      NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_orders_user FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE SET NULL
+) ENGINE = InnoDB;
+
+CREATE TABLE order_items
+(
+    id         BIGINT         NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    order_id   BIGINT         NOT NULL,
+    product_id BIGINT         NULL,
+    quantity   SMALLINT       NOT NULL,
+    price      DECIMAL(11, 2) NOT NULL,
+
+    created_at TIMESTAMP      NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP      NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_order_items_order FOREIGN KEY (order_id) REFERENCES orders (id) ON DELETE CASCADE,
+    CONSTRAINT fk_order_items_product FOREIGN KEY (product_id) REFERENCES products (id) ON DELETE SET NULL,
+    CONSTRAINT chk_quantity_positive CHECK (quantity > 0)
 ) ENGINE = InnoDB;

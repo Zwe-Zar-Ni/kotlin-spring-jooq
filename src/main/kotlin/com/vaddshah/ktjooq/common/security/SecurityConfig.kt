@@ -69,9 +69,9 @@ class SecurityConfig(
             }
 
             // ? Custom entry point returns 401 with JSON body instead of default 403.
-            .exceptionHandling { exception ->
-                exception.authenticationEntryPoint(customAuthenticationEntryPoint)
-            }
+//            .exceptionHandling { exception ->
+//                exception.authenticationEntryPoint(customAuthenticationEntryPoint)
+//            }
 
             // ? Add our JWT filter before Spring's default username/password filter.
             // ? This way, JWT tokens are processed on every request.
