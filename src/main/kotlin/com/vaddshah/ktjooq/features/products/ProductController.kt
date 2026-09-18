@@ -11,7 +11,7 @@ import org.springframework.stereotype.Controller
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.*
 
-@Controller
+@RestController
 @RequestMapping("/api/products")
 class ProductController(
     private val service: ProductService

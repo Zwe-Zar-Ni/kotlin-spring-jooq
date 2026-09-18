@@ -7,5 +7,5 @@ data class UserResponse(
     val name: String,
     val email: String,
     val createdAt: LocalDateTime,
-    val updatedAt: LocalDateTime,
+    val updatedAt: LocalDateTime? = null,
 )
