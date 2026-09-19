@@ -17,7 +17,7 @@ class UserService(private val repository: UserRepository) {
                 updatedAt = user.updatedAt,
             )
         } else {
-            error("User not found")
+            throw NoSuchElementException("User not found with email: $email")
         }
     }
 }

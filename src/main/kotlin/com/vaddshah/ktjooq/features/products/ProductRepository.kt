@@ -61,7 +61,8 @@ class ProductRepository(
             .set(PRODUCTS.STOCK, product.stock.toShort())
             .returning()
             .fetchOne()
-        return toProductResponse(record)
+        val created = toProductResponse(record)
+        return created
     }
 
     fun details(id: Long): Product? {

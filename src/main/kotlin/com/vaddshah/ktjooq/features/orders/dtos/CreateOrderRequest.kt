@@ -2,11 +2,14 @@ package com.vaddshah.ktjooq.features.orders.dtos
 
 import jakarta.validation.Valid
 import jakarta.validation.constraints.NotEmpty
+import jakarta.validation.constraints.Positive
 
 data class Item(
+    @field:Positive
     val productId: Long,
+
+    @field:Positive
     val quantity: Int,
-    val price: Double,
 )
 
 data class CreateOrderRequest(

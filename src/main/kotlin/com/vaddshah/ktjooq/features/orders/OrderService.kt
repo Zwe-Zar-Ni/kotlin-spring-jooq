@@ -1,27 +1,24 @@
 package com.vaddshah.ktjooq.features.orders
 
+import com.vaddshah.ktjooq.common.api.PageResponse
 import com.vaddshah.ktjooq.features.orders.dtos.CreateOrderRequest
 import com.vaddshah.ktjooq.features.orders.dtos.Order
-import com.vaddshah.ktjooq.features.users.UserService
+import com.vaddshah.ktjooq.features.orders.dtos.OrderSummary
+import com.vaddshah.ktjooq.features.orders.dtos.OrdersFilter
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 
 @Service
 class OrderService(
-    private val repository: OrderRepository,
-    private val userService: UserService
+    private val repository: OrderRepository
 ) {
-    fun index(email: String): List<Order> {
-        val user = userService.getUser(email)
-        return repository.index(user.id)
-    }
+    fun index(userId: Long, filters: OrdersFilter): PageResponse<OrderSummary> =
+        repository.index(userId, filters)
 
-    fun create(email: String, payload: CreateOrderRequest) {
-        val user = userService.getUser(email)
-        repository.create(user.id, payload)
-    }
+    @Transactional
+    fun create(userId: Long, payload: CreateOrderRequest): Order =
+        repository.create(userId, payload)
 
-    fun details(email: String, orderId: Long): Order {
-        val user = userService.getUser(email)
-        return repository.details(user.id, orderId) ?: throw NoSuchElementException("Order not found.")
-    }
+    fun details(userId: Long, orderId: Long): Order =
+        repository.details(userId, orderId) ?: throw NoSuchElementException("Order not found.")
 }

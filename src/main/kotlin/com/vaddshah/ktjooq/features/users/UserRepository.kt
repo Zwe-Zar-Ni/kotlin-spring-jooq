@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional
 
 @Repository
 class UserRepository(private val dsl: DSLContext) {
+
     fun findAll(): List<UserResponse> =
         dsl.selectFrom(USERS)
             .orderBy(USERS.ID.desc())
@@ -23,23 +24,20 @@ class UserRepository(private val dsl: DSLContext) {
             .set(USERS.PASSWORD, request.password)
             .returning()
             .fetchOne()
-        return toUserResponse(record ?: error("Insert returned no row"))
+        val user = toUserResponse(record ?: error("Insert returned no row"))
+        return user
     }
 
     fun findByEmail(email: String): User? {
-        val user = dsl.selectFrom(USERS).where(USERS.EMAIL.eq(email)).fetchOne()
-        return if (user != null) {
-            User(
-                id = requireNotNull(user.id),
-                name = requireNotNull(user.name),
-                email = requireNotNull(user.email),
-                password = requireNotNull(user.password),
-                createdAt = requireNotNull(user.createdAt),
-                updatedAt = requireNotNull(user.updatedAt),
-            )
-        } else {
-            null
-        }
+        val user = dsl.selectFrom(USERS).where(USERS.EMAIL.eq(email)).fetchOne() ?: return null
+        return User(
+            id = requireNotNull(user.id),
+            name = requireNotNull(user.name),
+            email = requireNotNull(user.email),
+            password = requireNotNull(user.password),
+            createdAt = requireNotNull(user.createdAt),
+            updatedAt = requireNotNull(user.updatedAt),
+        )
     }
 
     private fun toUserResponse(record: UsersRecord): UserResponse = UserResponse(

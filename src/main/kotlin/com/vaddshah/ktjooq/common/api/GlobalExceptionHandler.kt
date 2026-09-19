@@ -29,6 +29,16 @@ class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.UNPROCESSABLE_CONTENT).body(response)
     }
 
+    @ExceptionHandler(IllegalArgumentException::class)
+    fun handleIllegalArgumentException(ex: IllegalArgumentException): ResponseEntity<ErrorResponse> {
+        val response = ErrorResponse(
+            status = HttpStatus.BAD_REQUEST.value(),
+            message = ex.message ?: "Invalid request"
+        )
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response)
+    }
+
     @ExceptionHandler(NoResourceFoundException::class)
     fun handleNoResourceFoundException(ex: NoResourceFoundException): ResponseEntity<ErrorResponse> {
         val response = ErrorResponse(
