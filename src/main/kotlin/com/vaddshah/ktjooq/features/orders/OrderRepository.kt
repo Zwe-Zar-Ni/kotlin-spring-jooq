@@ -9,7 +9,6 @@ import com.vaddshah.ktjooq.generated.tables.references.ORDER_ITEMS
 import com.vaddshah.ktjooq.generated.tables.references.PRODUCTS
 import com.vaddshah.ktjooq.generated.tables.references.USERS
 import org.jooq.DSLContext
-import org.jooq.impl.DSL.row
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Repository
 import java.math.BigDecimal
@@ -21,22 +20,6 @@ class OrderRepository(
 ) {
     companion object {
         private val log = LoggerFactory.getLogger(OrderRepository::class.java)
-    }
-
-    private fun userResponseRow() = row(
-        USERS.ID,
-        USERS.NAME,
-        USERS.EMAIL,
-        USERS.CREATED_AT,
-        USERS.UPDATED_AT
-    ).mapping { id, name, email, createdAt, updatedAt ->
-        UserResponse(
-            requireNotNull(id),
-            requireNotNull(name),
-            requireNotNull(email),
-            requireNotNull(createdAt),
-            updatedAt
-        )
     }
 
     fun index(userId: Long, filters: OrdersFilter): PageResponse<OrderSummary> {
@@ -137,13 +120,8 @@ class OrderRepository(
 
     fun details(userId: Long, orderId: Long): Order? {
         val order = dsl.select(
-            ORDERS.ID,
-            ORDERS.STATUS,
-            ORDERS.TOTAL,
-            ORDERS.CREATED_AT,
-            ORDERS.UPDATED_AT,
-            ORDERS.USER_ID,
-            userResponseRow()
+            ORDERS,
+            USERS,
         )
             .from(ORDERS)
             .leftJoin(USERS).on(ORDERS.USER_ID.eq(USERS.ID))
@@ -155,35 +133,43 @@ class OrderRepository(
         }
 
         val items = dsl.select(
-            ORDER_ITEMS.ID,
-            ORDER_ITEMS.PRODUCT_ID,
-            ORDER_ITEMS.QUANTITY,
-            ORDER_ITEMS.PRICE,
-            PRODUCTS.NAME,
-            ORDER_ITEMS.CREATED_AT
+            ORDER_ITEMS,
+            PRODUCTS,
         ).from(ORDER_ITEMS)
             .join(PRODUCTS).on(ORDER_ITEMS.PRODUCT_ID.eq(PRODUCTS.ID))
             .where(ORDER_ITEMS.ORDER_ID.eq(orderId))
-            .fetch { record ->
-                OrderItem(
-                    id = requireNotNull(record.value1()),
-                    productId = requireNotNull(record.value2()),
-                    quantity = requireNotNull(record.value3()).toInt(),
-                    price = requireNotNull(record.value4()),
-                    productName = requireNotNull(record.value5()),
-                    createdAt = requireNotNull(record.value6()),
-                )
-            }
+            .fetch()
+
+        val itemRecords = items.map { item ->
+            val itemRecord = item.value1()
+            val productRecord = item.value2()
+            return@map OrderItem(
+                id = requireNotNull(itemRecord.id),
+                productId = requireNotNull(productRecord.id),
+                productName = requireNotNull(productRecord.name),
+                createdAt = requireNotNull(itemRecord.createdAt),
+                quantity = requireNotNull(itemRecord.quantity).toInt(),
+                price = requireNotNull(itemRecord.price),
+            )
+        }
+
+        val orderRecord = order.value1()
+        val userRecord = order.value2()
 
         return Order(
-            id = order.value1(),
-            status = requireNotNull(order.value2()),
-            total = requireNotNull(order.value3()),
-            createdAt = requireNotNull(order.value4()),
-            updatedAt = requireNotNull(order.value5()),
-            userId = requireNotNull(order.value6()),
-            user = order.value7(),
-            items = items
+            id = orderRecord.id,
+            status = requireNotNull(orderRecord.status),
+            total = requireNotNull(orderRecord.total),
+            createdAt = requireNotNull(orderRecord.createdAt),
+            updatedAt = requireNotNull(orderRecord.updatedAt),
+            userId = requireNotNull(orderRecord.userId),
+            user = UserResponse(
+                requireNotNull(userRecord.id),
+                requireNotNull(userRecord.name),
+                requireNotNull(userRecord.email),
+                requireNotNull(userRecord.createdAt)
+            ),
+            items = itemRecords
         )
     }
 }
